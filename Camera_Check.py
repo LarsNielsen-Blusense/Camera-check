@@ -25,6 +25,7 @@ def get_image_arguments():
 
 
 def create_return_dict():
+
     ret_dict = {}
     ret_dict['Error'] = ''
     ret_dict['nr_of_images'] = 0
@@ -35,7 +36,6 @@ def create_return_dict():
     ret_dict['Camera_QC_passed'] = False
     ret_dict['Background_Image'] = ''
     ret_dict['Version'] = __version__
-
     return ret_dict
 
 
@@ -61,6 +61,7 @@ def image_check(image_path_list, ret_dict):
             ret_dict['Error'] = ret_dict['Error'] + background + ' does not exits\n'
     else:
         ret_dict['Error'] = 'Not 3 Images supplied'
+        return
     if ret_dict['Error'] == '':
         QC_sum = 0
         im_nr = 0
@@ -76,9 +77,11 @@ def image_check(image_path_list, ret_dict):
 
 
 def delete_images(ret_dict):
-    os.remove(ret_dict['Background_Image'])
+    if os.path.isfile(ret_dict['Background_Image']):
+        os.remove(ret_dict['Background_Image'])
     for item in ret_dict['image_list']:
-        os.remove(item)
+        if os.path.isfile(item):
+            os.remove(item)
 
 
 if __name__ == '__main__':
@@ -88,8 +91,11 @@ if __name__ == '__main__':
     """Get the image list from arguments"""
     image_list = get_image_arguments()
 
+    """Check images taken by camera"""
     image_check(image_list, return_dict)
 
+    """Print return dictionary"""
     print json.dumps(return_dict)
 
+    """Delete the pictures take"""
     delete_images(return_dict)
